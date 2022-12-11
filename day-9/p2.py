@@ -1,70 +1,32 @@
-head = [0, 0]
-tail = [
-    [0, 0],
-    [0, 0],
-    [0, 0],
-    [0, 0],
-    [0, 0],
-    [0, 0],
-    [0, 0],
-    [0, 0],
-    [0, 0],
-]
+nodes = [[0, 0] for _ in range(10)]
 
 def up(i, parent, next):
-    parent[1] += 1
-    new_dir = ''
     if parent[1] - 1 > next[1]:
         next[1] += 1
-        new_dir = 'U'
         # Account for diagnonal movement
         if i > 0:
             next[0] = parent[0]
-    return new_dir, next
 
 def down(i, parent, next):
-    parent[1] -= 1
-    new_dir = ''
     if parent[1] + 1 < next[1]:
         next[1] -= 1
-        new_dir = 'D'
         # Account for diagnonal movement
         if i > 0:
             next[0] = parent[0]
-    return new_dir, next
 
 def left(i, parent, next):
-    parent[0] -= 1
-    new_dir = ''
     if parent[0] + 1 < next[0]:
         next[0] -= 1
-        new_dir = 'L'
         # Account for diagnonal movement
         if i > 0:
             next[1] = parent[1]
-    return new_dir, next
 
 def right(i, parent, next):
-    parent[0] += 1
-    new_dir = ''
     if parent[0] - 1 > next[0]:
         next[0] += 1
-        new_dir = 'R'
         # Account for diagnonal movement
         if i > 0:
             next[1] = parent[1]
-    return new_dir, next
-
-def process(dir, i, new_tail):
-    if dir == 'U':
-        return up(i, head, new_tail)
-    elif dir == 'D':
-        return down(i, head, new_tail)
-    elif dir == 'L':
-        return left(i, head, new_tail)
-    elif dir == 'R':
-        return right(i, head, new_tail)
-    return '', new_tail
 
 
 sample = '''
@@ -85,9 +47,27 @@ for line in sample.split('\n'):
     num = int(num)
     print(dir, num)
     for i in range(num):
-        new_tail = tail[0]
-        for j in range(len(tail)):
-            dir, new_tail = process(dir, i - j, new_tail)
+        # Update head separately
+        if dir == 'U':
+            nodes[0][1] += 1
+        elif dir == 'D':
+            nodes[0][1] -= 1
+        elif dir == 'L':
+            nodes[0][0] -= 1
+        elif dir == 'R':
+            nodes[0][0] += 1
+        # Update nodes
+        for j in range(1, len(nodes)):
+            prev = nodes[j - 1]
+            curr = nodes[j]
+            if dir == 'U':
+                up(i, curr, prev)
+            elif dir == 'D':
+                down(i, curr, prev)
+            elif dir == 'L':
+                left(i, curr, prev)
+            elif dir == 'R':
+                right(i, curr, prev)
 
 
-print(head, tail)
+print(nodes)
