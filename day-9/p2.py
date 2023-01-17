@@ -1,41 +1,17 @@
 nodes = [[0, 0] for _ in range(10)]
 
-def up(i, parent, next=None):
-    parent[1] += 1
-    if next is not None:
-        if parent[1] - 1 > next[1]:
-            next[1] += 1
-            # Account for diagnonal movement
-            if i > 0:
-                next[0] = parent[0]
+def print_grid():
+    max_x = 20
+    max_y = 20
+    grid = [['.' for _ in range(max_x)] for _ in range(max_y)]
 
-def down(i, parent, next=None):
-    parent[1] -= 1
-    if next is not None:
-        if parent[1] + 1 < next[1]:
-            next[1] -= 1
-            # Account for diagnonal movement
-            if i > 0:
-                next[0] = parent[0]
+    i = 0
+    for node in nodes:
+        grid[node[1]][node[0]] = str(i)
+        i += 1
 
-def left(i, parent, next=None):
-    parent[0] -= 1
-    if next is not None:
-        if parent[0] + 1 < next[0]:
-            next[0] -= 1
-            # Account for diagnonal movement
-            if i > 0:
-                next[1] = parent[1]
-
-def right(i, parent, next=None):
-    parent[0] += 1
-    if next is not None:
-        if parent[0] - 1 > next[0]:
-            next[0] += 1
-            # Account for diagnonal movement
-            if i > 0:
-                next[1] = parent[1]
-
+    grid = '\n'.join(''.join(x for x in g) for g in grid)
+    print(grid)
 
 sample = '''
 R 4
@@ -48,14 +24,62 @@ L 5
 R 2
 '''.strip()
 
+def process(dir, head, tail):
+    """
+    Processes the node at the specified index.
+    """
+    # print(head)
+    if dir == 'U':
+        head[1] += 1
+        # Up
+        if head[1] - 1 > tail[1]:
+            # H
+            # .
+            # T
+            tail[1] += 1
+    elif dir == 'D':
+        head[1] -= 1
+        # Down
+        if head[1] + 1 < tail[1]:
+            # T
+            # .
+            # H
+            tail[1] -= 1
+    elif dir == 'L':
+        head[0] -= 1
+        # Left
+        if head[0] + 1 < tail[0]:
+            # H.T
+            tail[0] += 1
+    elif dir == 'R':
+        head[0] += 1
+        if head[0] - 1 > tail[0]:
+            # T.H
+            tail[0] += 1
+    elif dir == 'UL':
+        head[0] -= 1
+        head[1] += 1
+    elif dir == 'DL':
+        head[0] -= 1
+        head[1] -= 1
+    elif dir == 'UR':
+        head[0] += 1
+        head[1] += 1
+    elif dir == 'DR':
+        head[0] += 1
+        head[1] -= 1
+    return dir
+
+
 # for line in open('input.txt', 'r'):
 for line in sample.split('\n'):
     line = line.strip()
     [dir, num] = line.split(' ')
     num = int(num)
     print(dir, num)
+    # We only need the direction for the head
+    # For all nodes (except the head), use the previous node to determine what the current one's position should be (infer direction!)
     for i in range(num):
-        # Update head separately
         if dir == 'U':
             nodes[0][1] += 1
         elif dir == 'D':
@@ -64,29 +88,8 @@ for line in sample.split('\n'):
             nodes[0][0] -= 1
         elif dir == 'R':
             nodes[0][0] += 1
-        # Update nodes
-        for j in range(0, len(nodes)):
-            if j == 0:
-                curr = nodes[j]
-                if dir == 'U':
-                    up(i, curr)
-                elif dir == 'D':
-                    down(i, curr)
-                elif dir == 'L':
-                    left(i, curr)
-                elif dir == 'R':
-                    right(i, curr)
-            else:
-                prev = nodes[j - 1]
-                curr = nodes[j]
-                if dir == 'U':
-                    up(i, curr, prev)
-                elif dir == 'D':
-                    down(i, curr, prev)
-                elif dir == 'L':
-                    left(i, curr, prev)
-                elif dir == 'R':
-                    right(i, curr, prev)
+    for i in range(1, len(nodes) - 1):
+        for j in range(num):
+            dir = process(dir, nodes[i - 1], nodes[i])
 
-
-print(nodes)
+print_grid()
